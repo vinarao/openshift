@@ -1,0 +1,17 @@
+---
+- name: Start and enable Network Manager
+  service:
+    name: NetworkManager
+    state: started
+    enabled: yes
+
+- name: Ensure all connections will autoconnect
+  shell: nmcli c m "{{ item }}" connection.autoconnect yes; sleep 1
+  with_items: "{{ ansible_interfaces }}"
+  when: item != 'lo' and item != 'docker0'
+
+- name: Disable pseudoservice network
+  service:
+    name: network
+    enabled: no
+...

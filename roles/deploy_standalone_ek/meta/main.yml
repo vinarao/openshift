@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  author: gatblau
+  description: install EFK using docker compose.
+  license: Apache v2
+  min_ansible_version: 1.2
+...

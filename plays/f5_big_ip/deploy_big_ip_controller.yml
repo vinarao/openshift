@@ -1,0 +1,18 @@
+- hosts: masters[0]
+  tasks:
+    - name: "deploy bigip controller"
+      include_role:
+        name: deploy_bigip_controller
+      vars:
+        ocp_token: "openshift service account token here..."
+        bigip_username: "Us3r..."
+        bigip_password: "P@ssw0rd..."
+        bigip_url: "10.100.10.10"
+        bigip_partition: "OPENSHIFT_CORP_PRES"
+        route_vserver_addr: "10.100.100.10"
+        log_level: "DEBUG"
+        openshift_sdn_name: "/OPENSHIFT_CORP_PRES/ocp-vxlan-corp"
+        route_http_vserver: "VIP1_OPENSHIFT_CORP_HTTP"
+        route_https_vserver: "VIP1_OPENSHIFT_CORP_HTTPS"
+        default_server_ssl: "wildcard.ocp.example.com"
+...

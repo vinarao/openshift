@@ -1,0 +1,36 @@
+kind: "CronJob"
+apiVersion: "batch/v1beta1"
+metadata:
+  name: "{{ ad_sync_cronjob_name }}"
+spec:
+  schedule: "{{ ad_sync_schedule }}"
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: "1"
+  failedJobsHistoryLimit: "3"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: "ad-sync-groups"
+              image: "{{ ad_sync_imagestream }}"
+              command:
+                - "/bin/bash"
+                - "-c"
+                - "/usr/local/ldap/ldap-sync.sh"
+              volumeMounts:
+                - mountPath: "/usr/local/ldap"
+                  name: "ldap-sync-volume"
+              nodeSelector:
+                region: infra
+          volumes:
+            - configMap:
+                defaultMode: 0755
+                name: "{{ ad_sync_configmap_name }}"
+              name: "ldap-sync-volume"
+          restartPolicy: "Never"
+          terminationGracePeriodSeconds: 30
+          activeDeadlineSeconds: 500
+          dnsPolicy: "ClusterFirst"
+          serviceAccountName: "{{ ad_sync_sa_name }}"
+          serviceAccount: "{{ ad_sync_sa_name }}"

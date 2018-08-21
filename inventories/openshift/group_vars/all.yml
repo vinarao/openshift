@@ -1,0 +1,121 @@
+---
+oc: /usr/local/bin/oc
+ocp_uri: admin.openshift-01.example.com
+
+# version of the openshift-ansible installer to use
+openshift_ansible_version: openshift-ansible-3.9.27-1
+
+# version of the docker daemon install on the nodes
+docker_version: 1.13.1
+
+ansible_user: ansible-user
+ansible_become: yes
+
+git_http_proxy: "http://proxy.example.com:8080"
+
+ocp_repos_to_enable:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-ose-3.9-rpms
+  - rhel-7-fast-datapath-rpms
+
+crs_repos_to_enable:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rh-gluster-3-for-rhel-7-server-rpms
+  - rh-gluster-3-client-for-rhel-7-server-rpms
+
+# Storage values in GB
+min_storage:
+  master: 5
+  infra: 5
+  compute: 5
+  glusterfs: 5
+
+# Memory values in GB
+min_memory:
+  master: 0.5
+  infra: 0.5
+  compute: 0.5
+  glusterfs: 0.5
+
+min_cpus:
+  master: 1
+  infra: 1
+  compute: 1
+  glusterfs: 1
+
+docker_storage_disk: /dev/sdb
+gluster_device: sdb
+min_gluster_storage: 5
+
+# Replace credentials below for sub registration
+#redhat_username: my_username
+#redhat_password: my_password
+#redhat_pool_ids: pool_id
+
+ocp_redhat_satellite_fqdn: host0001.example.com
+ocp_redhat_organization_id: my_company
+ocp_redhat_activationkey: my_activation_key
+
+crs_redhat_satellite_fqdn: host0001.example.com
+crs_redhat_organization_id: my_company
+crs_redhat_activationkey: my_activation_key
+
+ocp_packages_to_install:
+  - wget
+  - net-tools
+  - bind-utils
+  - iptables-services
+  - bridge-utils
+  - bash-completion
+  - kexec-tools
+  - sos
+  - psacct
+  - python-passlib
+  - firewalld
+  - python-firewall
+  - python-ipaddress
+  - yum-utils
+
+crs_packages_to_install:
+  - heketi-client
+  - cns-deploy
+  - glusterfs-fuse
+  - redhat-storage-server
+  - iscsi-initiator-utils
+  - device-mapper-multipath
+  - gluster-block
+
+controller_packages_to_install:
+  - git
+  - ansible
+  - make
+  - java
+  - patch
+  - httpd-tools
+
+ssh_user: 'ansible-user'
+remote_ssh_user: 'ansible-user'
+
+firewalld_allow_ports:
+  - port: 111/tcp
+  - port: 24007/tcp
+  - port: 24008/tcp
+  - port: 24009-24108/tcp
+  - port: 49152-49664/tcp
+  - port: 111/udp
+  - port: 3260/tcp
+  - port: 22/tcp
+
+custom_ops_host: host0004.example.com
+custom_logging_fluentd_ops_client_cert:
+custom_logging_fluentd_ops_client_key:
+custom_logging_fluentd_ops_ca:
+
+ad_sync_bind_dn: 'CN=OpenshiftD_Svc_Accounts,OU=Service Accounts,OU=Administration,DC=subdomain,DC=example,DC=com'
+ad_sync_bind_password: 'bind_password_here'
+ad_sync_group_search_dn: 'OU=Groups,DC=subdomain,DC=example,DC=com'
+ad_sync_ldap_url: 'ldap://ldap_server:389'
+ad_sync_user_search_dn: 'DC=subdomain,DC=example,DC=com'
+...

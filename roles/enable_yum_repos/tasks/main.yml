@@ -1,0 +1,17 @@
+---
+- name: Disable all repositories
+  rhsm_repository:
+    name: '*'
+    state: disabled
+
+- name: Enable required repositories
+  rhsm_repository:
+    name: "{{ item }}"
+    state: enabled
+  with_items: "{{ repos_to_enable }}"
+
+- name: Ensure subscription-manager updated
+  yum:
+    name: subscription-manager
+    state: latest
+...

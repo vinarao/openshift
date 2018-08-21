@@ -1,0 +1,15 @@
+---
+- name: Configure Ansible Control Node
+  hosts: control_node
+  vars:
+    - redhat_satellite_fqdn: "{{ control_node_redhat_satellite_fqdn }}"
+    - redhat_organization_id: "{{ control_node_redhat_organization_id }}"
+    - redhat_activationkey: "{{ control_node_redhat_activationkey }}"
+    - repos_to_enable: "{{ control_node_repos_to_enable }}"
+    - packages_to_install: "{{ control_node_packages_to_install }}"
+  roles:
+    - { role: register_rhel, tags: register_system }
+    - { role: enable_yum_repos, tags: enable_repos }
+    - { role: install_packages, tags: install_packages }
+    - { role: configure_control_node, tags: configure_control_node }
+...

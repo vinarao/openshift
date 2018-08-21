@@ -1,0 +1,29 @@
+---
+- hosts: all
+  pre_tasks:
+    - name: install packages for testing under docker
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - selinux-policy
+        - libselinux-python
+        - openssh-server
+        - which
+
+  tasks:
+    - name: allow only 'secure' ciphers
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        line: 'Ciphers aes128-ctr,aes192-ctr,aes256-ctr'
+        regexp: '^Ciphers '
+      notify: restart sshd
+  handlers:
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted
+
+  roles:
+    - role: apply_rhel7_cis_baseline
+...

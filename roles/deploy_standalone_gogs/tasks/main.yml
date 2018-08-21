@@ -1,0 +1,65 @@
+---
+- name: Logging into Gogs Docker Registry
+  docker_login:
+    registry: "{{ gogs_registry }}"
+    username: "{{ gogs_registry_username }}"
+    password: "{{ gogs_registry_password }}"
+  when: gogs_registry_login == true
+
+- name: Pulling Gogs image
+  docker_image:
+     name: "{{ gogs_registry }}{{ gogs_image_name }}"
+     state: present
+
+- name: Logging into MariaDb Docker Registry
+  docker_login:
+    registry: "{{ mariadb_registry }}"
+    username: "{{ mariadb_registry_username }}"
+    password: "{{ mariadb_registry_password }}"
+  when: mariadb_registry_login == true
+
+#- name: Ensuring MariDb service is not installed
+#  package:
+#    name: mariadb
+#    state: absent
+
+- name: Pulling MariaDb image
+  docker_image:
+     name: "{{ mariadb_registry }}{{ mariadb_image_name }}"
+     state: present
+
+- name: Starting up the Gogs container using a data volume
+  docker_service:
+    state: present
+    project_name: Gogs
+    definition:
+      version: '2'
+      services:
+        gogs:
+          image: "{{ gogs_registry }}{{ gogs_image_name }}"
+          container_name: gogs
+          restart: unless-stopped
+          ports:
+            - "{{ gogs_http_port }}"
+            - "{{ gogs_ssh_port }}"
+          links:
+            - gogs_database
+        gogs_database:
+          image: "{{ mariadb_registry }}{{ mariadb_image_name }}"
+          container_name: gogs_database
+          restart: unless-stopped
+          ports:
+            - "{{ mariadb_port }}"
+          volumes:
+            - "mariadb-data:{{ mariadb_data }}"
+          environment:
+            - "MYSQL_ROOT_PASSWORD={{ mysql_root_password }}"
+            - "MYSQL_PASSWORD={{ mysql_user_password }}"
+            - "MYSQL_DATABASE=gogs"
+            - "MYSQL_USER=gogsuser"
+      volumes:
+        mariadb-data:
+  register: output
+
+- debug:
+    var: output

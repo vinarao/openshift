@@ -1,0 +1,114 @@
+---
+- name: create imagestream for custom image
+  shell: /usr/local/bin/oc create imagestream "{{ ad_sync_imagestream  }}" -n "{{ ad_sync_namespace }}"
+  ignore_errors: yes
+
+- name: enable custom image lookup
+  shell: /usr/local/bin/oc set image-lookup "{{ ad_sync_imagestream  }}" -n "{{ ad_sync_namespace }}"
+
+- name: create temp directory for doing work in
+  command: mktemp -d /tmp/openshift-logging-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- set_fact:
+    tempdir: "{{ mktemp.stdout }}"
+
+- name: create build config description for custom image
+  template:
+    src: bc.yml.j2
+    dest: "{{ tempdir }}/bc.yml"
+
+- name: create build config for custom image
+  oc_obj:
+    state: present
+    name: "{{ ad_sync_build_config }}"
+    namespace: "{{ ad_sync_namespace }}"
+    kind: bc
+    files:
+      - "{{ tempdir }}/bc.yml"
+    delete_after: true
+
+- name: build custom image
+  shell: /usr/local/bin/oc start-build "{{ ad_sync_build_config }}"
+
+- name: create service account description for ad sync
+  template:
+    src: sa.yml.j2
+    dest: "{{ tempdir }}/sa.yml"
+
+- name: create service account for ad sync
+  oc_obj:
+    name: "{{ ad_sync_sa_name }}"
+    state: present
+    namespace: "{{ ad_sync_namespace }}" 
+    kind: serviceaccount
+    files:
+      - "{{ tempdir }}/sa.yml"
+    delete_after: true
+
+- name: create cluster role description for ad sync
+  template:
+    src: cr.yml.j2
+    dest: "{{ tempdir }}/cr.yml"
+
+- name: create cluster role for ad sync
+  oc_obj:
+    name: "{{ ad_sync_cluster_role_name }}"
+    state: present
+    namespace: "{{ ad_sync_namespace }}" 
+    kind: clusterrole
+    files:
+      - "{{ tempdir }}/cr.yml"
+    delete_after: true
+
+- name: create cluster rolebinding description for ad sync
+  template:
+    src: crb.yml.j2
+    dest: "{{ tempdir }}/crb.yml"
+
+- name: create clusterrolebinding for ad sync
+  oc_obj:
+    name: "{{ ad_sync_cluster_rolebinding_name }}"
+    state: present
+    namespace: "{{ ad_sync_namespace }}"
+    kind: clusterrolebinding
+    files:
+      - "{{ tempdir }}/crb.yml"
+    delete_after: true
+
+- name: create config map description for ad sync
+  template:
+    src: cm.yml.j2
+    dest: "{{ tempdir }}/cm.yml"
+
+- name: create configmap for ad sync
+  oc_obj:
+    name: "{{ ad_sync_configmap_name }}"
+    state: present
+    namespace: "{{ ad_sync_namespace }}"
+    kind: cm
+    files:
+      - "{{ tempdir }}/cm.yml"
+    delete_after: true
+
+- name: create cronjob description for ad sync
+  template:
+    src: cj.yml.j2
+    dest: "{{ tempdir }}/cj.yml"
+
+- name: create cronfob for ad sync
+  oc_obj:
+    name: "{{ ad_sync_cronjob_name }}"
+    state: present
+    namespace: "{{ ad_sync_namespace }}"
+    kind: cronjob
+    files:
+      - "{{ tempdir }}/cj.yml"
+    delete_after: true
+
+- name: Delete temp directory
+  file:
+    name: "{{ tempdir }}"
+    state: absent
+  changed_when: False

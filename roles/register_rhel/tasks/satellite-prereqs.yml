@@ -1,0 +1,6 @@
+---
+- name: Install katello-ca-consumer-latest.noarch.rpm
+  become: "True"
+  yum:
+    name: "http://{{ redhat_satellite_fqdn }}/pub/katello-ca-consumer-latest.noarch.rpm"
+...

@@ -1,0 +1,32 @@
+---
+- hosts: nodes
+  vars:
+    redhat_satellite_fqdn: "{{ ocp_redhat_satellite_fqdn }}"
+    redhat_organization_id: "{{ ocp_redhat_organization_id }}"
+    redhat_activationkey: "{{ ocp_redhat_activationkey }}"
+    repos_to_enable: "{{ ocp_repos_to_enable }}"
+    packages_to_install: "{{ ocp_packages_to_install }}"
+  roles:
+    - { role: register_rhel, tags: ['register_rhel'] }
+    - { role: enable_yum_repos, tags: ['enable_yum_repos'] }
+    - { role: install_packages, tags: ['install_packages'] }
+    - { role: prepare_openshift_node, tags: ['prepare_openshift_node'] }
+    - { role: configure_network_manager, tags: ['configure_network_manager'] }
+
+- hosts: override_glusterfs
+  vars:
+    redhat_satellite_fqdn: "{{ crs_redhat_satellite_fqdn }}"
+    redhat_organization_id: "{{ crs_redhat_organization_id }}"
+    redhat_activationkey: "{{ crs_redhat_activationkey }}"
+    repos_to_enable: "{{ crs_repos_to_enable }}"
+    packages_to_install: "{{ crs_packages_to_install }}"
+  roles:
+    - { role: register_rhel, tags: ['register_rhel'] }
+    - { role: enable_yum_repos, tags: ['enable_yum_repos'] }
+    - { role: install_packages, tags: ['install_packages'] }
+    - { role: prepare_openshift_node, tags: ['prepare_openshift_node'] }
+
+- hosts: nodes
+  roles:
+    - { role: configure_multitenant_docker, tags: ['configure_multitenant_docker'] }
+...

@@ -4,7 +4,7 @@ Creates a remote ssh user to prepare the machine to be accessed by Ansible.
 
 ## Prerequisites
 
-An SSH public key in the following location **<<user_home>>/.ssh/remote_user_rsa.pub**
+An SSH key pair needs to be created and public key needs in the following location **<<user_home>>/.ssh/remote_user_rsa.pub**
 
 ## Role Variables
 

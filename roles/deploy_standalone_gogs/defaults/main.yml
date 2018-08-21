@@ -1,0 +1,14 @@
+---
+mysql_root_password: passw0rd
+mysql_user_password: userpassw0rd
+gogs_registry_login: false
+gogs_registry: "docker.io/"
+gogs_image_name: "openshiftdemos/gogs"
+gogs_http_port: "10080:3000"
+gogs_ssh_port: "10022:10022"
+mariadb_registry_login: false
+mariadb_registry: "docker.io/"
+mariadb_image_name: "library/mariadb"
+mariadb_data: "/var/lib/mysql"
+mariadb_port: "3306:3306"
+...

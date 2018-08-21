@@ -1,0 +1,48 @@
+[OSEv3:children]
+masters
+nodes
+override_glusterfs
+glusterfs
+etcd
+
+[masters]
+master0 ansible_host=host0003.example.com openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
+master1 ansible_host=host0002.example.com openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az2'}"
+master2 ansible_host=host0004.example.com openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az3'}"
+
+[etcd]
+etcd0 ansible_host=host0003.example.com
+etcd1 ansible_host=host0002.example.com
+etcd2 ansible_host=host0004.example.com
+
+[infra]
+infra0 ansible_host=host0010.example.com openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
+infra1 ansible_host=host0011.example.com openshift_node_labels="{'region': 'infra', 'zone': 'az2'}"
+infra2 ansible_host=host0012.example.com openshift_node_labels="{'region': 'infra', 'zone': 'az3'}"
+infra3 ansible_host=host0005.example.com openshift_node_labels="{'region': 'infra', 'zone': 'az3'}"
+
+[compute]
+compute0 ansible_host=host0001.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az1'}"
+compute1 ansible_host=host0003.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az2'}"
+compute2 ansible_host=host0005.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az3'}"
+compute3 ansible_host=host0004.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az2'}"
+compute4 ansible_host=host0002.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az3'}"
+
+
+# external GlusterFS Container Ready Storage (CRS) cluster nodes
+[override_glusterfs]
+storage0 ansible_host=host0009.example.com
+storage1 ansible_host=host0008.example.com
+storage2 ansible_host=host0007.example.com
+
+[nodes:children]
+masters
+compute
+infra
+etcd
+
+[control_node]
+controller1 ansible_host=host0002.example.com
+
+[bastion]
+bastion1 ansible_host=host0002.example.com
