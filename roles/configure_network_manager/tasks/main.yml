@@ -1,17 +1,20 @@
 ---
-- name: Start and enable Network Manager
+- name: Start and enable NM
   service:
     name: NetworkManager
     state: started
     enabled: yes
 
+- name: Capture NetworkManager connections
+  shell: 'nmcli -m multiline c s | grep ^NAME: | sed -e "s/NAME:\ *//" | uniq'
+  register: nm_connections
+
 - name: Ensure all connections will autoconnect
   shell: nmcli c m "{{ item }}" connection.autoconnect yes; sleep 1
-  with_items: "{{ ansible_interfaces }}"
-  when: item != 'lo' and item != 'docker0'
+  with_items: "{{ nm_connections.stdout_lines }}"
+  when item not in connections_to_ignore
 
 - name: Disable pseudoservice network
   service:
     name: network
     enabled: no
-...
