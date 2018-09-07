@@ -1,9 +1,28 @@
 ---
-import_playbook: openshift/pre_configure.yml
-import_playbook: openshift/deploy_openshift_cluster.yml
-import_playbook: glusterfs_crs/deploy_glusterfs_crs_cluster.yml 
-import_playbook: openshift/configure_registry_crs_storage.yml 
-import_playbook: openshift/deploy_metrics.yml
-import_playbook: openshift/deploy_logging.yml
-import_playbook: openshift/deploy_service_catalogue.yml
-import_playbook: openshift/post_configure.yml
+- name: Applying security rules to RHEL instances
+  import_playbook: openshift/apply_security_baseline.yml
+
+- name: Preparing RHEL instances for OpenShift deployment
+  import_playbook: openshift/pre_configure.yml
+
+- name: Deploying the OpenShift cluster
+  import_playbook: openshift/deploy_openshift_cluster.yml
+
+- name: Deploying the Container Ready Storage cluster (CRS)
+  import_playbook: glusterfs_crs/deploy_glusterfs_crs_cluster.yml
+
+- name: Configuring the OpenShift Docker Registry storage with CRS
+  import_playbook: openshift/configure_registry_crs_storage.yml
+
+- name: Deploying OpenShift metrics
+  import_playbook: openshift/deploy_metrics.yml
+
+- name: Deploying OpenShift logging
+  import_playbook: openshift/deploy_logging.yml
+
+- name: Deploying the OpenShift service catalogue
+  import_playbook: openshift/deploy_service_catalogue.yml
+
+- name: Performing post conficuration tasks
+  import_playbook: openshift/post_configure.yml
+...

@@ -25,5 +25,15 @@
         state: restarted
 
   roles:
+    - role: apply_rhel7_cp_ccp_baseline
+
     - role: apply_rhel7_cis_baseline
+      vars:
+        rhel7cis_notauto: false
+        rhel7cis_section1: true
+        rhel7cis_section2: false
+        rhel7cis_section3: false
+        rhel7cis_section4: false
+        rhel7cis_section5: false
+        rhel7cis_section6: false
 ...
