@@ -1,0 +1,16 @@
+---
+urls_to_probe:
+  - url: https://access.redhat.com
+    status: 200
+    validate_certs: yes
+
+machine_spec:
+  disks:
+    - name: sda
+      size: '10.00 GB'
+  memtotal_mb: 992
+  cpu_count: 1
+
+names_to_resolve:
+  - access.redhat.com
+...
