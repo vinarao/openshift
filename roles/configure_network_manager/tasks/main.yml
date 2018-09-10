@@ -12,7 +12,7 @@
 - name: Ensure all connections will autoconnect
   shell: nmcli c m "{{ item }}" connection.autoconnect yes; sleep 1
   with_items: "{{ nm_connections.stdout_lines }}"
-  when item not in connections_to_ignore
+  when: item not in connections_to_ignore
 
 - name: Disable pseudoservice network
   service:
