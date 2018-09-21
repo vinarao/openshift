@@ -1,0 +1,20 @@
+---
+redhat_satellite_fqdn: satellite.myorg.com
+redhat_organization_id:  myorg
+redhat_activationkey: my_ak
+
+repos_to_enable:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rh-gluster-3-for-rhel-7-server-rpms
+  - rh-gluster-3-client-for-rhel-7-server-rpms
+
+packages_to_install:
+  - heketi-client
+  - cns-deploy
+  - glusterfs-fuse
+  - redhat-storage-server
+  - iscsi-initiator-utils
+  - device-mapper-multipath
+  - gluster-block
+...

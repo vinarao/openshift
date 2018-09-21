@@ -1,0 +1,19 @@
+---
+repos_to_enable:
+  - rhel-7-server-ansible-2.6-rpms
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-ose-3.9-rpms
+
+redhat_satellite_fqdn: satellite.myorg.com
+redhat_organization_id: myorg
+redhat_activationkey: my_ak
+
+packages_to_install:
+  - git
+  - ansible
+  - make
+  - java
+  - patch
+  - httpd-tools
+...

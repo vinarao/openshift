@@ -1,0 +1,41 @@
+---
+- name: Logging into Kibana Docker Registry
+  docker_login:
+    registry: "{{ kibana_registry }}"
+    username: "{{ kibana_registry_username }}"
+    password: "{{ kibana_registry_password }}"
+  when: kibana_registry_login == true
+
+- name: Logging into Elasticsearch Docker Registry
+  docker_login:
+    registry: "{{ elasticsearch_registry }}"
+    username: "{{ elasticsearch_registry_username }}"
+    password: "{{ elasticsearch_registry_password }}"
+  when: kibana_registry_login == true
+
+- name: Start up the ElasticSearch and Kibana containers
+  become: yes
+  docker_service:
+    state: present
+    project_name: EFK
+    definition:
+      version: '2'
+      services:
+        elasticsearch:
+          image: "{{ elasticsearch_registry }}/{{ elasticsearch_image_name }}"
+          container_name: elasticsearch
+          restart: unless-stopped
+          expose:
+            - "{{ elasticsearch_port }}"
+          ports:
+            - "{{ elasticsearch_port }}:{{ elasticsearch_port }}"
+
+        kibana:
+          image: "{{ kibana_registry }}/{{ kibana_image_name }}"
+          container_name: kibana
+          restart: unless-stopped
+          links:
+            - elasticsearch
+          ports:
+            - "{{ kibana_port }}:{{ kibana_port }}"
+...

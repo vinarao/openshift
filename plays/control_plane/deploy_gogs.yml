@@ -1,0 +1,44 @@
+---
+# set https_proxy variable if required below
+
+- hosts: gogs
+  tasks:
+    - name: install scl for python 2.7
+      package:
+        name: python27-python-pip
+        state: present
+
+- hosts: gogs
+  tasks:
+    - name: Ensuring MariaDb service is not installed
+      package:
+        name: mariadb
+        state: absent
+
+- hosts: gogs
+  pre_tasks:
+    - name: install scl for python 2.7
+      yum:
+        name: python27-python-pip
+        state: present
+
+    - name: install pip prereqs
+      pip:
+        name: "{{ item }}"
+      with_items:
+        - docker-py
+        - docker-compose==1.9
+
+    - name: hack selinux bindings requirement
+      file:
+        src: /lib64/python2.7/site-packages/selinux
+        dest: /opt/rh/python27/root/lib64/python2.7/site-packages/selinux
+        state: link
+
+  roles:
+    - { role: deploy_standalone_gogs, ansible_python_interpreter: /opt/rh/python27/root/bin/python }
+  environment:
+    PATH: /opt/rh/python27/root/usr/bin
+    LD_LIBRARY_PATH: /opt/rh/python27/root/usr/lib64
+    https_proxy:
+...

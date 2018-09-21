@@ -1,0 +1,28 @@
+---
+# version of the docker daemnon install on the nodes
+docker_version: 1.13.1
+
+ansible_user: ansible-user
+ansible_become: yes
+
+control_node_repos_to_enable:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-server-rhscl-7-rpms 
+
+docker_storage_disk: /dev/sdb
+
+control_node_redhat_satellite_fqdn: host0001.example.com
+control_node_redhat_organization_id: my_company
+control_node_redhat_activationkey: my_activation_key
+
+cf_redhat_satellite_fqdn: host0001.example.com
+cf_redhat_organization_id: my_company
+cf_redhat_activationkey: my_activation_key
+
+openshift_http_proxy: "http://proxy.example.com:8080"
+openshift_https_proxy: "http://proxy.example.com:8080"
+openshift_no_proxy: 'local,localhost,localdomain,subdomain.example.com'
+
+ssh_user: 'ansible-user'
+remote_ssh_user: 'ansible-user'

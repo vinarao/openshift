@@ -1,0 +1,7 @@
+---
+- hosts: docker_hosts
+  roles:
+    - register_rhel
+    - repos
+    - configure_multitenant_docker
+...

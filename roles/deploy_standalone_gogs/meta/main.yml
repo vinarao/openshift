@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  author: gatblau
+  description: deploys a GoGS application using docker compose.
+  license: Apache v2
+  min_ansible_version: 1.2
+...
