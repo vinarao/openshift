@@ -8,6 +8,9 @@
 - name: Deploying the OpenShift cluster
   import_playbook: openshift/deploy_openshift_cluster.yml
 
+- name: Preparing Glusterfs/CRS instances for OpenShift deployment
+  import_playbook: glusterfs_crs/pre_configure.yml
+
 - name: Deploying the Container Ready Storage cluster (CRS)
   import_playbook: glusterfs_crs/deploy_glusterfs_crs_cluster.yml
 
