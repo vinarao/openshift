@@ -1,0 +1,42 @@
+---
+- import_playbook: /usr/share/ansible/openshift-ansible/playbooks/init/main.yml
+  vars:
+    l_init_fact_hosts: "oo_masters_to_config"
+    l_openshift_version_set_hosts: "oo_masters_to_config:!oo_first_master"
+    l_openshift_version_check_hosts: "all:!all"
+    l_sanity_check_hosts: "{{ groups['oo_masters_to_config'] }}"
+  tags: always
+
+- hosts: oo_first_master
+  roles:
+    - { role: configure_log_forwarding, when: postdeploy_ops_host is defined, tags: ['configure_log_forwarding'] }
+    - { role: deploy_ldap_sync_job, tags: ['deploy_ldap_sync_job'] }
+
+- hosts: all:!bastion:!controller:!postdeploy_glusterfs
+  gather_facts: no
+  tasks:
+    - name: change logs max consumption
+      lineinfile:
+        line: ' SystemMaxUse=500M'
+        path: /etc/systemd/journald.conf
+        regexp: '^ SystemMaxUse='
+      notify: restart journald
+
+    - name: change log rotation interval
+      lineinfile:
+        path: /etc/logrotate.conf
+        line: 'rotate 1'
+        regexp: "^rotate "
+
+    - name: do not rotate weekly
+      lineinfile:
+        path: /etc/logrotate.conf
+        line: daily
+        regexp: ^weekly
+
+  handlers:
+    - name: restart journald
+      service:
+        name: systemd-journald
+        state: restarted
+...

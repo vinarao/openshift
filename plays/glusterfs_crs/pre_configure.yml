@@ -1,0 +1,14 @@
+---
+- hosts: postdeploy_glusterfs
+  vars:
+    redhat_satellite_fqdn: "{{ crs_redhat_satellite_fqdn }}"
+    redhat_organization_id: "{{ crs_redhat_organization_id }}"
+    redhat_activationkey: "{{ crs_redhat_activationkey }}"
+    repos_to_enable: "{{ crs_repos_to_enable }}"
+    packages_to_install: "{{ crs_packages_to_install }}"
+  roles:
+    - { role: register_rhel, tags: ['register_crs'] }
+    - { role: enable_yum_repos, tags: ['enable_repos_crs'] }
+    - { role: install_packages, tags: ['install_packages'] }
+    - { role: prepare_openshift_node, tags: ['prepare_node'] }
+...

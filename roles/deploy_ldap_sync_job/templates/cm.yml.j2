@@ -1,0 +1,39 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ ad_sync_configmap_name }}
+data:
+  ldap-sync.yml: |
+    kind: LDAPSyncConfig
+    apiVersion: v1
+    url: {{ ad_sync_ldap_url }}
+    insecure: true
+    bindDN: {{ ad_sync_bind_dn }}
+    bindPassword: {{ ad_sync_bind_password }}
+    augmentedActiveDirectory:
+      groupsQuery:
+          baseDN: {{ ad_sync_group_search_dn }}
+          scope: sub
+          derefAliases: never
+          pageSize: 10
+      groupUIDAttribute: dn
+      groupNameAttributes: [ cn ]
+      usersQuery:
+        baseDN: {{ ad_sync_user_search_dn }}
+        scope: sub
+        derefAliases: never
+        filter: (objectClass=organizationalPerson)
+        pageSize: 10
+      userNameAttributes: [ sAMAccountName ]
+      groupMembershipAttributes: [ memberOf ]
+  ldap-sync.sh: |
+    #!/bin/bash
+    echo Compiling whitelist
+    ldapsearch -x -D '{{ ad_sync_bind_dn  }}' -b '{{ ad_sync_group_search_dn }}' -w '{{ ad_sync_bind_password }}' -H '{{ ad_sync_ldap_url }}' -o ldif-wrap=no | grep dn | grep -Eo CN=.+$ > /tmp/whitelist
+    echo compiling blacklist
+    grep -Eo CN=[^,]+ /tmp/whitelist | cut -f2 -d'=' > /tmp/blacklist
+    echo Syncing groups
+    oc adm groups sync --whitelist=/tmp/whitelist --sync-config=/usr/local/ldap/ldap-sync.yml --confirm
+    echo Pruning groups
+    oc adm groups prune --blacklist=/tmp/blacklist --sync-config=/usr/local/ldap/ldap-sync.yml --confirm

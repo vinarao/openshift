@@ -1,0 +1,13 @@
+---
+kind: ClusterRoleBinding
+apiVersion: v1
+groupNames: null
+metadata:
+  name: {{ ad_sync_cluster_rolebinding_name }}
+roleRef:
+  name: {{ ad_sync_cluster_role_name }}
+subjects:
+- kind: ServiceAccount
+  name: ad-group-sync-sa
+userNames:
+- system:serviceaccount:{{ ad_sync_namespace }}:{{ ad_sync_sa_name }}

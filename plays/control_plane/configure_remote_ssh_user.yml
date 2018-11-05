@@ -1,0 +1,18 @@
+---
+- name: Create ssh key
+  hosts: bastion
+  tasks:
+    - name: Ensure user has the key
+      user:
+        name: "{{ ssh_user }}"
+        generate_ssh_key: yes
+      register: master_user
+
+- name: Create remote ssh user
+  hosts: all
+  vars:
+    - user: "{{ hostvars[groups['bastion'][0]].master_user }}"
+  roles:
+  - { role: configure_remote_ssh_user_aws, when: is_aws_environment is defined, tags: ['configure_remote_ssh_user_in_aws'] }
+  - { role: configure_remote_ssh_user, when: is_aws_environment is not defined, tags: ['configure_remote_ssh_user'] }
+

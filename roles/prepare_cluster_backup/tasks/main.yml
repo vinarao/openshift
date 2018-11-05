@@ -1,0 +1,33 @@
+---
+- name: ensure remote backup dir does not exist
+  file:
+    state: absent
+    path: "{{ ocp_remote_backup_dir }}"
+
+- name: ensure remote backup dir exists
+  file:
+    state: directory
+    path: "{{ ocp_remote_backup_dir }}"
+
+- name: backup directories
+  shell: mkdir -p "{{ ocp_remote_backup_dir }}/{{ item }}"; rsync -rptgoD "{{ item }}/" "{{ ocp_remote_backup_dir }}/{{ item }}/"
+  with_items: "{{ ocp_directories_to_backup }}"
+
+- name: backup etcd directories
+  shell: mkdir -p "{{ ocp_remote_backup_dir }}/{{ item }}"; rsync -rptgoD "{{ item }}/" "{{ ocp_remote_backup_dir }}/{{ item }}/"
+  with_items: "{{ ocp_etcd_directories_to_backup }}"
+  when: inventory_hostname in groups['etcd']
+
+- name: snapshot etcd
+  shell: host=`hostname -f`; docker exec -i -e ETCDCTL_API=3 etcd_container /usr/bin/etcdctl --cert /etc/etcd/peer.crt --key /etc/etcd/peer.key --cacert /etc/etcd/ca.crt --endpoints https://$host:2379 snapshot save /var/lib/etcd/etcd_db_snapshot
+  when: inventory_hostname in groups['etcd']
+
+- name: move etcd snapshot to backup dir
+  shell: mv /var/lib/etcd/etcd_db_snapshot "{{ ocp_remote_backup_dir }}/"
+  when: inventory_hostname in groups['etcd']
+
+- name: archive the backup
+  archive:
+    remove: yes
+    path: "{{ ocp_remote_backup_dir }}"
+    dest: "/tmp/{{ inventory_hostname }}.tar.gz"

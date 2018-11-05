@@ -1,0 +1,45 @@
+---
+- hosts: masters:infra
+  vars:
+    redhat_satellite_fqdn: "{{ ocp_infra_redhat_satellite_fqdn }}"
+    redhat_organization_id: "{{ ocp_infra_redhat_organization_id }}"
+    redhat_activationkey: "{{ ocp_infra_redhat_activationkey }}"
+    repos_to_enable: "{{ ocp_infra_repos_to_enable }}"
+    packages_to_install: "{{ ocp_infra_packages_to_install }}"
+  roles:
+    - { role: register_rhel, tags: ['register_infra'] }
+    - { role: enable_yum_repos, tags: ['enable_repos_infra'] }
+    - { role: install_packages, tags: ['install_packages'] }
+    - { role: prepare_openshift_node, tags: ['prepare_node'] }
+    - { role: configure_network_manager, tags: ['network_manager'] }
+
+- hosts: compute
+  vars:
+    redhat_satellite_fqdn: "{{ ocp_redhat_satellite_fqdn }}"
+    redhat_organization_id: "{{ ocp_redhat_organization_id }}"
+    redhat_activationkey: "{{ ocp_redhat_activationkey }}"
+    repos_to_enable: "{{ ocp_repos_to_enable }}"
+    packages_to_install: "{{ ocp_packages_to_install }}"
+  roles:
+    - { role: register_rhel, tags: ['register_compute'] }
+    - { role: enable_yum_repos, tags: ['enable_repos_compute'] }
+    - { role: install_packages, tags: ['install_packages'] }
+    - { role: prepare_openshift_node, tags: ['prepare_node'] }
+    - { role: configure_network_manager, tags: ['network_manager'] }
+
+#- hosts: amos_glusterfs
+#  vars:
+#    redhat_satellite_fqdn: "{{ crs_redhat_satellite_fqdn }}"
+#    redhat_organization_id: "{{ crs_redhat_organization_id }}"
+#    redhat_activationkey: "{{ crs_redhat_activationkey }}"
+#    repos_to_enable: "{{ crs_repos_to_enable }}"
+#    packages_to_install: "{{ crs_packages_to_install }}"
+#  roles:
+#    - { role: register_rhel, tags: ['register_crs'] }
+#    - { role: enable_yum_repos, tags: ['enable_repos_crs'] }
+#    - { role: install_packages, tags: ['install_packages'] }
+#    - { role: prepare_openshift_node, tags: ['prepare_node'] }
+
+- hosts: all:!bastion:!controller:!amos_glusterfs
+  roles:
+   - { role: configure_multitenant_docker, tags: ['setup_docker'] }

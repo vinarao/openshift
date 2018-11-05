@@ -1,0 +1,11 @@
+---
+ad_sync_imagestream: ad-sync-groups
+ad_sync_namespace: default
+ad_sync_build_config: ad-sync-groups
+ad_sync_cluster_role_name: ldap-group-syncer
+ad_sync_cluster_rolebinding_name: system:ldap-group-syncers
+ad_sync_configmap_name: ad-sync-groups
+ad_sync_cronjob_name: ad-sync-groups
+ad_sync_base_image: openshift/jenkins-slave-base-centos7
+ad_sync_sa_name: ad-group-sync-sa
+ad_sync_schedule: '*/5 * * * *'

@@ -1,0 +1,14 @@
+---
+# tasks file for prepare-controller
+- name: Set HTTP proxy settings
+  git_config:
+    name: http.proxy
+    value: "{{ git_http_proxy }}"
+  scope: global
+  when: git_http_proxy is defined
+
+- name: Getting the openshift-ansible installer from Github
+  git:
+    repo: "https://github.com/openshift/openshift-ansible.git"
+    dest: "/usr/share/ansible/openshift-ansible"
+    version: "{{ openshift_ansible_version }}"

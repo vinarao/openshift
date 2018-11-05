@@ -1,0 +1,14 @@
+- name: create user
+  user:
+   name: "{{ remote_ssh_user }}"
+      
+- name: add sudo rule
+  template:
+   src: sudo.j2
+   dest: "/etc/sudoers.d/{{ansible_user}}" 
+
+- name: add ssh key
+  authorized_key:
+    user: "{{ remote_ssh_user }}"
+    key: "{{ user.ssh_public_key }}"
+ 

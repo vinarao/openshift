@@ -1,0 +1,88 @@
+---
+- name: Set default image variables based on openshift_deployment_type
+  include_vars: "{{ var_file_name }}"
+  with_first_found:
+    - "{{ openshift_deployment_type }}.yml"
+    - "default_images.yml"
+  loop_control:
+    loop_var: var_file_name
+
+- name: Set fluentd image facts
+  set_fact:
+    openshift_logging_fluentd_image_prefix: "{{ openshift_logging_fluentd_image_prefix | default(__openshift_logging_fluentd_image_prefix) }}"
+    openshift_logging_fluentd_image_version: "{{ openshift_logging_fluentd_image_version | default(__openshift_logging_fluentd_image_version) }}"
+
+- set_fact:
+    __base_file_dir: "{{ '5.x' if openshift_logging_es5_techpreview | bool else '2.x' }}"
+    __es_version: "{{ '5.x' if openshift_logging_es5_techpreview | bool else '2.x' }}"
+
+# allow passing in a tempdir
+- name: Create temp directory for doing work in
+  command: mktemp -d /tmp/openshift-logging-ansible-XXXXXX
+  register: mktemp
+  changed_when: False
+
+- set_fact:
+    tempdir: "{{ mktemp.stdout }}"
+
+- name: Create templates subdirectory
+  file:
+    state: directory
+    path: "{{ tempdir }}/templates"
+    mode: 0755
+  changed_when: False
+
+
+# create ocp-outut configmap
+- template:
+    src: output-es-ops-config.conf.j2
+    dest: "{{ tempdir }}/output-es-ops-config.conf"
+
+- name: Set Fluentd configmap
+  oc_configmap:
+    state: present
+    name: "logging-fluentd-ops-output"
+    namespace: "{{ openshift_logging_fluentd_namespace }}"
+    from_file:
+      output-es-ops-config.conf: "{{ tempdir }}/output-es-ops-config.conf"
+
+- name: Generate logging-fluentd daemonset definition
+  template:
+    src: "{{ __base_file_dir }}/fluentd.j2"
+    dest: "{{ tempdir }}/templates/logging-fluentd.yaml"
+  vars:
+    daemonset_name: logging-fluentd
+    daemonset_component: fluentd
+    daemonset_container_name: fluentd-elasticsearch
+    daemonset_serviceAccount: aggregated-logging-fluentd
+    app_host: "{{ openshift_logging_fluentd_app_host }}"
+    app_port: "{{ openshift_logging_fluentd_app_port }}"
+    ops_host: "{{ openshift_logging_fluentd_ops_host }}"
+    ops_port: "{{ openshift_logging_fluentd_ops_port }}"
+    fluentd_nodeselector_key: "{{ openshift_logging_fluentd_nodeselector.keys() | first }}"
+    fluentd_nodeselector_value: "{{ openshift_logging_fluentd_nodeselector.values() | first }}"
+    fluentd_cpu_limit: "{{ openshift_logging_fluentd_cpu_limit }}"
+    fluentd_cpu_request: "{{ openshift_logging_fluentd_cpu_request | min_cpu(openshift_logging_fluentd_cpu_limit | default(none)) }}"
+    fluentd_memory_limit: "{{ openshift_logging_fluentd_memory_limit }}"
+    audit_container_engine: "{{ openshift_logging_fluentd_audit_container_engine | default(False) | bool }}"
+    audit_log_file: "{{ openshift_logging_fluentd_audit_file | default() }}"
+    audit_pos_log_file: "{{ openshift_logging_fluentd_audit_pos_file | default() }}"
+  check_mode: no
+  changed_when: no
+
+- name: Set logging-fluentd daemonset
+  oc_obj:
+    state: present
+    name: logging-fluentd
+    namespace: "{{ openshift_logging_fluentd_namespace }}"
+    kind: daemonset
+    files:
+      - "{{ tempdir }}/templates/logging-fluentd.yaml"
+    delete_after: true
+#
+#
+- name: Delete temp directory
+  file:
+    name: "{{ tempdir }}"
+    state: absent
+  changed_when: False

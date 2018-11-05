@@ -1,0 +1,15 @@
+---
+- name: Prepare controller
+  hosts: controller
+  vars:
+    - redhat_satellite_fqdn: "{{ ocp_redhat_satellite_fqdn }}"
+    - redhat_organization_id: "{{ ocp_redhat_organization_id }}"
+    - redhat_activationkey: "{{ ocp_redhat_activationkey }}"
+    - repos_to_enable: "{{ ocp_repos_to_enable }}"
+    - packages_to_install: "{{ controller_packages_to_install }}"
+  roles:
+    - { role: register_rhel, tags: register_system }
+    - { role: enable_yum_repos, tags: rnable_repos }
+    - { role: install_packages, tags: install_packages }
+    - { role: configure_controller, tags: configure_controller }
+...

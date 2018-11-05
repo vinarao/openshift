@@ -1,0 +1,140 @@
+- hosts: masters[0]
+  gather_facts: no
+  tasks:
+  # - block:
+  #   - name: check cluster roles
+  #     shell: /usr/local/bin/oc adm diagnostics clusterroles
+  #     register: clusterroles
+
+  #   - debug:
+  #       msg: "{{ clusterroles.stdout_lines }}"
+  #   tags: roles 
+
+  # - block:
+  #   - name: check cluster role bindings
+  #     shell: /usr/local/bin/oc adm diagnostics clusterrolebindings
+  #     register: clusterrolebindings
+
+  #   - debug:
+  #       msg: "{{ clusterrolebindings.stdout_lines }}"
+  #   tags: bindings
+
+   - block:
+     - name: check cluster logs
+       shell: /usr/local/bin/oc adm diagnostics analyzelogs
+       register: logstate
+
+     - debug:
+         msg: "{{ logstate.stdout_lines }}"
+     tags: logs
+
+   - block:
+     - name: check etcd health
+       shell:  host=`hostname -f`; docker exec -i -e ETCDCTL_API=2 etcd_container /usr/bin/etcdctl --cert-file /etc/etcd/peer.crt --key-file /etc/etcd/peer.key --ca-file /etc/etcd/ca.crt --endpoints https://$host:2379 cluster-health
+       register: etcd_health
+
+     - debug:
+         msg: "{{ etcd_health.stdout_lines }}"
+     tags: etcd
+
+   - block:
+     - name: check api status
+       uri:
+         url: "https://{{ openshift_master_cluster_public_hostname }}:{{ openshift_master_api_port }}/healthz"
+         validate_certs: no
+       register: api_health
+     - debug:
+         msg: "{{ api_health.msg }}" 
+     tags: api
+
+   - block:
+     - name: list persistent volumes
+       shell: /usr/local/bin/oc get pv
+       register: pv
+
+     - debug:
+         msg: "{{ pv.stdout_lines }}"
+     tags: volumes
+
+   - block:
+     - name: get nodes
+       shell: /usr/local/bin/oc get nodes
+       register: nodes
+
+     - debug:
+         msg: "{{ nodes }}"
+     tags: nodes
+
+   - block:
+     - name: get all routes
+       shell: /usr/local/bin/oc get routes --all-namespaces
+       register: routes
+
+     - debug:
+         msg: "{{ routes.stdout_lines  }}"
+
+     - name: check heketi url
+       shell: curl -I $(/usr/local/bin/oc get routes -n glusterfs | tail -n +2 | awk '{print $2}') | grep 401 
+       register: heketi_url_output
+
+     - debug:
+         msg: "{{ heketi_url_output.stdout_lines }}"
+
+     - name: check hawkular url
+       shell: curl -I -k https://$(/usr/local/bin/oc get routes -n openshift-infra | tail -n +2 | awk '{print $2}') | grep 200
+       register: hawkular_url_output
+       ignore_errors: yes
+     - debug:
+         msg: "{{ hawkular_url_output.stdout_lines }}"
+
+     - name: check kibana url
+       shell: curl -I -k https://$(/usr/local/bin/oc get routes -n logging | tail -n +2 | awk '{print $2}') | grep 302
+       register: kibana_url_output
+
+     - debug:
+         msg: "{{ kibana_url_output.stdout_lines }}"
+     tags: routes
+
+- hosts: nodes
+  gather_facts: no
+  vars:
+    services:
+      - openvswitch.service
+      - multipathd.service
+      - rpcbind.service
+      - docker.service
+      - ntpd.service
+      - atomic-openshift-node.service
+      - systemd-journald.service
+  tasks:
+    - name: populate service facts
+      service_facts:
+
+    - debug:
+        var: ansible_facts.services[ "{{ item }}" ].state
+      with_items: "{{ services }}"
+
+    - name: error out if any not in running state
+      shell: systemctl status "{{ item }}"
+      with_items: "{{ services }}"
+  tags: services
+
+- hosts: masters
+  gather_facts: no
+  vars:
+    services:
+      - atomic-openshift-master-controllers.service
+      - atomic-openshift-master-api.service
+      - etcd_container.service
+  tasks:
+    - name: populate service facts
+      service_facts:
+
+    - debug:
+        var: ansible_facts.services[ "{{ item }}" ].state
+      with_items: "{{ services }}"
+
+    - name: error out if any not in running state
+      shell: systemctl status "{{ item }}"
+      with_items: "{{ services }}"
+  tags: services  

@@ -1,0 +1,41 @@
+---
+- name: fail on wrong cpu count
+  fail:
+    msg: "cpu count ({{ ansible_processor_count  }}) does not match the spec ({{ machine_spec.cpu_count }})"
+  when: machine_spec.cpu_count != ansible_processor_count
+
+- name: fail on wrong memory size
+  fail:
+    msg: "memory size ({{ ansible_memtotal_mb }}) does not match the spec ({{ machine_spec.memtotal_mb }})"
+  when: machine_spec.memtotal_mb != ansible_memtotal_mb
+
+- name: fail on wrong disk sizes
+  fail:
+    msg: "disk's {{ item.name }} size ({{ ansible_devices[item.name].size }}) does not match the spec ({{ item.size }})"
+  when: item.size != ansible_devices[item.name].size
+  with_items: "{{ machine_spec.disks }}"
+
+- name: probe URLs
+  uri:
+    url: "{{ item.url }}"
+  validate_certs: "{{ item.validate_certs | default('no')}}"
+  register: uri_return
+  with_items: "{{ urls_to_probe }}"
+
+- name: fail on URLs not responding as expected
+  fail:
+    msg: "URL {{ item.url }} got bad responce"
+  when: item.status | default(200) != uri_return.results | selectattr('url', 'match',  item.url) | map(attribute='status') | join | int
+  with_items: "{{ urls_to_probe }}"
+
+- name: resolve names
+  shell: dig +short "{{ item }}"
+  changed_when: False
+  register: names_resolved
+  with_items: "{{ names_to_resolve }}"
+
+- name: fail on unsuccessful name resolution
+  fail:
+    msg: "name {{ item._ansible_item_label }} could not be resolved"
+  when: item.stdout == ''
+  with_items: "{{ names_resolved.results }}"

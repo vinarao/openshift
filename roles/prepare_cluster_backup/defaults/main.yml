@@ -1,0 +1,9 @@
+---
+ocp_remote_backup_dir: /tmp/ocp_backup
+ocp_directories_to_backup:
+  - /etc/origin
+  - /etc/sysconfig
+  - /etc/pki
+
+ocp_etcd_directories_to_backup:
+  - /etc/etcd

@@ -1,0 +1,53 @@
+---
+# vars file for configure_node
+#I am version specific and I should be controlled in inventory
+
+ocp_repos_to_enable:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-ose-3.9-rpms
+  - rhel-7-fast-datapath-rpms
+
+crs_repos_to_enable:
+  - rh-gluster-3-for-rhel-7-server-rpms
+  - rh-gluster-3-client-for-rhel-7-server-rpms
+
+crs_packages_to_install:
+  - heketi-client
+  - cns-deploy
+  - glusterfs-fuse
+  - redhat-storage-server
+  - iscsi-initiator-utils
+  - device-mapper-multipath
+  - gluster-block
+#I am version specific and I should be controlled in inventory
+ocp_packages_to_install:
+  - wget
+  - git
+  - net-tools
+  - bind-utils
+  - iptables-services
+  - bridge-utils
+  - bash-completion
+  - kexec-tools
+  - sos
+  - psacct
+  - python-passlib
+  - firewalld
+  - python-firewall
+  - python-ipaddress
+  - yum-utils
+
+aws_yum_plugins_to_disable:
+  - amazon-id
+  - rhui-lb
+
+aws_yum_plugins_to_enable:
+  - product-id
+  - search-disabled-repos
+  - subscription-manager
+  
+aws_rhui_repofiles:
+  - /etc/yum.repos.d/redhat-rhui-client-config.repo
+  - /etc/yum.repos.d/redhat-rhui.repo
+  - /etc/yum.repos.d/rhui-load-balancers.conf

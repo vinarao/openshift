@@ -1,0 +1,12 @@
+---
+# TODO: add any other health checks
+- name: check the health of openshift cluster
+  hosts: masters[0]
+  tasks:
+  - name: register cluster-health output
+    shell: hostname=`hostname -f`; docker exec etcd_container  etcdctl --cert-file /etc/etcd/peer.crt --key-file /etc/etcd/peer.key --ca-file /etc/etcd/ca.crt --endpoints https://$hostname:2379 cluster-health
+    register: etcd_cluster_health
+  - name: show cluster-health output
+    debug:
+      msg: "{{ etcd_cluster_health.stdout_lines }}"
+...

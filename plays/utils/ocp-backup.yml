@@ -1,0 +1,41 @@
+- hosts: controller
+  gather_facts: no
+  vars:
+    ocp_backup_dir: "{{ ocp_destination_backup_dir | default('/tmp/ocp_backups') }}"
+    ansible_become: no
+  tasks:
+    - name: capture current time
+      shell: date +%Y%m%d%H%M
+      register: current_time
+
+    - set_fact:
+        backup_time: "{{ current_time.stdout }}"
+
+    - name: ensure local base backup dir exists
+      file:
+        state: directory
+        path: "{{ ocp_backup_dir }}"
+
+    - name: ensure current local backup dir exists
+      file:
+        state: directory
+        path: "{{ ocp_backup_dir }}/{{ backup_time }}" 
+
+# When etcd and masters are same nodes - masters needs to be exluded
+- hosts: nodes:!masters
+  gather_facts: no
+  roles:
+    - prepare_cluster_backup
+      
+- hosts: all:!controller:!bastion:!amos_glusterfs:!masters
+  gather_facts: no
+  vars:
+    ocp_backup_dir: "{{ ocp_destination_backup_dir | default('/tmp/ocp_backups') }}"
+    ansible_become: no
+  tasks:
+    - name: fetch remote backup
+      fetch:
+        fail_on_missing: yes
+        flat: yes
+        src: "/tmp/{{ inventory_hostname }}.tar.gz"
+        dest: "{{ ocp_backup_dir }}/{{ hostvars['controller1'].backup_time }}/"

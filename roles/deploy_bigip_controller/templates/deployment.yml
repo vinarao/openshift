@@ -1,0 +1,56 @@
+---
+# TODO: parametise the bigip-ctrl image
+# TODO: name k8s-bigip-ctlr1 (line 7 only) after instance of controller (e.g. k8s-bigip-ctlr1, k8s-bigip-ctlr2, etc) to account for HA controllers. This is the case where there are two BigIP instances then eaqch controller updates one instance.
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  name: k8s-bigip-ctlr1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: k8s-bigip-ctlr
+      labels:
+        app: k8s-bigip-ctlr
+    spec:
+      # Name of the Service Account bound to a Cluster Role with the required
+      # permissions
+      serviceAccountName: bigip-ctlr
+      containers:
+        - name: k8s-bigip-ctlr
+          # replace the version as needed
+          image: "f5networks/k8s-bigip-ctlr:1.5"
+          env:
+            - name: BIGIP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: bigip-login
+                  key: username
+            - name: BIGIP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bigip-login
+                  key: password
+          command: ["/app/bin/k8s-bigip-ctlr"]
+          args: [
+            "--bigip-username=$(BIGIP_USERNAME)",
+            "--bigip-password=$(BIGIP_PASSWORD)",
+            "--bigip-url={{ bigip_url }}",
+            "--bigip-partition={{ bigip_partition }}",
+            "--pool-member-type=cluster",
+            "--manage-routes=true",
+            "--route-vserver-addr={{ route_vserver_addr }}",
+            "--log-level={{ log_level }}",
+            "--openshift-sdn-name={{ openshift_sdn_name }}",
+            "--route-http-vserver={{ route_http_vserver }}",
+            "--route-https-vserver={{ route_https_vserver }}",
+            "--default-server-ssl={{ default_server_ssl }}",
+            ]
+      imagePullSecrets:
+        # Secret that gives access to a private Docker registry
+        - name: f5-docker-images
+        # Secret containing the BIG-IP system login credentials
+        - name: bigip-login
+      nodeSelector:
+        region: infra
+...

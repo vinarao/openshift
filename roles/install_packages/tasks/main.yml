@@ -1,0 +1,23 @@
+- debug:
+    msg: "{{ packages_to_install }}"
+
+
+#- debug:
+#    msg: "{{ sean_packages_to_install }}"
+
+- name: Install base packages
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ packages_to_install }}"
+  tags:
+    - packages
+
+#- name: Install base ---------packages1
+#  yum:
+#    name: "{{ item }}"
+#    state: latest
+#  with_items: "{{ sean_packages_to_install }}"
+#  tags:
+#    - packages
+

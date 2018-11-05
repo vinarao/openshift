@@ -1,0 +1,21 @@
+---
+# Node preparation tasks goes here
+
+- name: Ensure selinux packages installed
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - libselinux-python
+    - selinux-policy-targeted
+
+- name: Ensure SElinux is enforcing
+  selinux:
+    policy: targeted
+    state: enforcing
+
+- name: start firewalld
+  systemd: 
+    state: started 
+    name: firewalld
+    enabled: True

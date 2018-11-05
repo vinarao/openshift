@@ -1,0 +1,23 @@
+---
+- hosts: docker_hosts
+  vars:
+    redhat_satellite_fqdn: "{{ ocp_redhat_satellite_fqdn }}"
+    redhat_organization_id: "{{ ocp_redhat_organization_id }}"
+    redhat_activationkey: "{{ ocp_redhat_activationkey }}"
+    repos_to_enable: "{{ ocp_repos_to_enable }}"
+  roles:
+  - { role: register_rhel, tags: ['register_rhel_docker_hosts_controlplane'] }
+  - { role: enable_yum_repos, tags: ['enable_yum_repos_controlplane'] }
+  - { role: configure_multitenant_docker, tags: ['register_rhel_controlplane'] }
+
+  
+- hosts: cloudforms:database
+  vars:
+    redhat_satellite_fqdn: "{{ cf_redhat_satellite_fqdn }}"
+    redhat_organization_id: "{{ cf_redhat_organization_id }}"
+    redhat_activationkey: "{{ cf_redhat_activationkey }}"
+    repos_to_enable: "{{ ocp_repos_to_enable }}"
+  roles:
+  - { role: register_rhel, tags: ['register_rhel_cloudforms'] }
+  - { role: enable_yum_repos, tags: ['enable_yum_repos_cloudforms'] }
+...

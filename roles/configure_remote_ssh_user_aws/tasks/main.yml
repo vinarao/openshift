@@ -1,0 +1,19 @@
+---
+- name: Creating remote SSH user
+  user:
+   name: "{{ remote_ssh_user }}"
+
+- name: Adding sudo rule for the user
+  template:
+   src: sudo.j2
+   dest: "/etc/sudoers.d/{{ ansible_user }}"
+
+- name: Adding public SSH key for the user
+  authorized_key:
+    user: "{{ remote_ssh_user }}"
+    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/remote_user_rsa.pub') | default('{{ user.ssh_public_key }}') }}"
+    
+ - name: Debug key value
+   debug: msg="{{ lookup('file', lookup('env','HOME') + '/.ssh/remote_user_rsa.pub') }}"
+
+...

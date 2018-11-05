@@ -1,0 +1,25 @@
+[docker_hosts:children]
+gogs
+ek
+
+[gogs]
+host0005.example.com
+
+[ek]
+host0004.example
+
+[satellite]
+host0001.example.com
+
+[cloudforms]
+host0002.example.com
+
+[database]
+host0003.example.com
+
+
+[controller]
+controller1 ansible_host=host0002.example.com
+
+[bastion]
+bastion1 ansible_host=host0002.example.com

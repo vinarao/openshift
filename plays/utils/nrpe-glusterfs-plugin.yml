@@ -1,0 +1,5 @@
+---
+- hosts: postdeploy_glusterfs
+  gather_facts: no
+  roles:
+   - nagios_gluster_plugin 

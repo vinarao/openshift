@@ -1,0 +1,15 @@
+kind: "BuildConfig"
+apiVersion: "v1"
+metadata:
+  name: "{{ ad_sync_build_config }}"
+spec:
+  runPolicy: "Serial"
+  source:
+    dockerfile: "FROM {{ ad_sync_base_image }}\nRUN yum install -y openldap-clients"
+  strategy:
+    dockerStrategy:
+      noCache: true
+  output:
+    to:
+      kind: "ImageStreamTag"
+      name: "{{ ad_sync_imagestream }}:latest"

@@ -1,0 +1,25 @@
+- name: configure nrpe allowed hosts
+  lineinfile:
+    path: /etc/nagios/nrpe.cfg
+    line: "allowed_hosts={{ nrpe_allowed_hosts | default('127.0.0.1') }}"
+    regexp: "^allowed_hosts="
+  notify: restart nrpe
+
+- name: open firewall port
+  firewalld:
+    port: "{{ nrpe_port | default('5666/tcp') }}"
+    zone: public
+    permanent: True
+    state: enabled
+
+- name: start and enable nrpe
+  service:
+    name: nrpe
+    state: started
+    enabled: yes
+
+- name: start and enable gluster monitoring daemon
+  service:
+    name: glusterpmd
+    state: started
+    enabled: yes 

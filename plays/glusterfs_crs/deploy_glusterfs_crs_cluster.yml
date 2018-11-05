@@ -1,0 +1,39 @@
+---
+# This playbook deploys a Container Ready Storage (CRS) cluster.
+# The installation is done on specific gluster nodes (glusterfs_crs) group and later configures
+# openshift to be full CRS configuration
+# it does it by deploying heketi on OCP and hooking it to external cluster
+# Pre-reqs:
+#   CRS nodes ready, and controller node can ssh to them
+
+- name: Open firewall ports
+  hosts: postdeploy_glusterfs
+  roles:
+    - configure_firewalld
+    - prepare_glusterfs_crs_node
+
+- name: Install glusterfs CRS
+  hosts: all:!controller:!bastion
+  tasks:
+     - set_fact:
+        # CRS defaults are:
+        # openshift_storage_glusterfs_heketi_is_native: True
+        # openshift_storage_glusterfs_is_native: False
+        # openshift_storage_glusterfs_registry_is_native: False
+        # openshift_storage_glusterfs_heketi_is_native: True
+        # openshift_storage_glusterfs_registry_heketi_is_native: False
+        # we set those on the inventory with prefix postdeploy_ so we can inject them here. same with host group.
+        # This way we avoid running those plays during main run.
+        openshift_storage_glusterfs_heketi_is_native: "{{ postdeploy_openshift_storage_glusterfs_heketi_is_native }}"
+        openshift_storage_glusterfs_heketi_topology_load: "{{ postdeploy_glusterfs_heketi_topology_load }}"
+        openshift_storage_glusterfs_storageclass: "{{ postdeploy_openshift_storage_glusterfs_storageclass }}"
+        openshift_storage_glusterfs_block_storageclass: "{{ postdeploy_glusterfs_block_storageclass }}"
+     - name: Add glusterfs nodes to glusterfs group for playbooks
+       add_host:
+         name: "{{ item }}"
+         groups: glusterfs
+       with_items:
+       - "{{ groups['postdeploy_glusterfs'] }}"
+
+- import_playbook: /usr/share/ansible/openshift-ansible/playbooks/openshift-glusterfs/config.yml
+...
