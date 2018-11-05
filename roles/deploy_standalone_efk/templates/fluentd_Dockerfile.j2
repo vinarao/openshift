@@ -1,0 +1,5 @@
+# fluentd/Dockerfile
+FROM {{ fluentd_registry }}/{{ fluentd_image_name }}
+ENV https_proxy {{openshift_https_proxy}}
+ENV HTTPS_PROXY {{openshift_https_proxy}}
+RUN ["gem", "install", "fluent-plugin-elasticsearch", "--no-rdoc", "--no-ri", "--version", "1.9.2"]

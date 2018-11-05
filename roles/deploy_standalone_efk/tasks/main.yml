@@ -1,0 +1,86 @@
+---
+- name: Logging into Kibana Docker Registry
+  docker_login:
+    registry: "{{ kibana_registry }}"
+    username: "{{ kibana_registry_username }}"
+    password: "{{ kibana_registry_password }}"
+  when: kibana_registry_login == true
+
+- name: Logging into Elasticsearch Docker Registry
+  docker_login:
+    registry: "{{ elasticsearch_registry }}"
+    username: "{{ elasticsearch_registry_username }}"
+    password: "{{ elasticsearch_registry_password }}"
+  when: kibana_registry_login == true
+
+- name: Logging into Flurentd Docker Registry
+  docker_login:
+    registry: "{{ fluentd_registry }}"
+    username: "{{ fluentd_registry_username }}"
+    password: "{{ fluentd_registry_password }}"
+  when: fluentd_registry_login == true
+
+- name: Creates the fluent configuration directory on the managed host
+  become: yes
+  file:
+    path: "{{ fluentd_host_dir }}"
+    state: directory
+    mode: 0777
+
+- name: Copy the fluentd conf file to fluentd conf directory
+  template:
+    src: "fluentd_conf.j2"
+    dest: "{{ fluentd_host_dir }}/fluent.conf"
+
+- name: Generate fluentd Dockerfile from variables
+  become: yes
+  template:
+    src: "fluentd_Dockerfile.j2"
+    dest: "{{ fluentd_host_dir }}/Dockerfile"
+
+- name: Start up the FluentD, ElasticSearch and Kabina
+  become: yes
+  docker_service:
+    state: present
+    project_name: EFK
+    definition:
+      version: '2'
+      services:
+        fluentd:
+          build: "{{ fluentd_host_dir }}"
+          image: "{{ fluentd_image_name }}-elasticsearch"
+          container_name: fluentd
+          restart: unless-stopped
+          volumes:
+            - "{{ fluentd_host_dir }}:{{ fluentd_conf_dir }}"
+          links:
+            - elasticsearch
+          ports:
+            - "{{ fluentd_port }}:{{ fluentd_port }}"
+            - "{{ fluentd_port }}:{{ fluentd_port }}/udp"
+        elasticsearch:
+          image: "{{ elasticsearch_registry }}/{{ elasticsearch_image_name }}"
+          container_name: elasticsearch
+          restart: unless-stopped
+          expose:
+            - "{{ elasticsearch_port }}"
+          ports:
+            - "{{ elasticsearch_port }}:{{ elasticsearch_port }}"
+          volumes:
+            - elasticsearch-data:/usr/share/elasticsearch/data
+        kibana:
+          image: "{{ kibana_registry }}/{{ kibana_image_name }}"
+          container_name: kibana
+          restart: unless-stopped
+          links:
+            - elasticsearch
+          ports:
+            - "{{ kibana_port }}"
+      volumes:
+        elasticsearch-data:
+- name: Remove generate fluentd Dockerfile
+  become: yes
+  file:
+    path: "{{ fluentd_host_dir }}/Dockerfile"
+    state: absent
+...

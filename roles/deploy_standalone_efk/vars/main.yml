@@ -1,0 +1,3 @@
+---
+# vars file for efk_install_application
+kibana_port: "80:5601"
