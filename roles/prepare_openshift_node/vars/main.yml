@@ -8,10 +8,13 @@ ocp_repos_to_enable:
   - rhel-7-server-ose-3.9-rpms
   - rhel-7-fast-datapath-rpms
 
+#I am version specific and I should be controlled in inventory
 crs_repos_to_enable:
+  - rhel-7-server-rpms
+  - rhel-7-server-extras-rpms
   - rh-gluster-3-for-rhel-7-server-rpms
   - rh-gluster-3-client-for-rhel-7-server-rpms
-
+#I am version specific and I should be controlled in inventory
 crs_packages_to_install:
   - heketi-client
   - cns-deploy
