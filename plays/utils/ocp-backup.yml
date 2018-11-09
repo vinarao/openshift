@@ -27,7 +27,7 @@
   roles:
     - prepare_cluster_backup
       
-- hosts: all:!controller:!bastion:!amos_glusterfs:!masters
+- hosts: all:!controller:!bastion:!postdeploy_glusterfs:!masters
   gather_facts: no
   vars:
     ocp_backup_dir: "{{ ocp_destination_backup_dir | default('/tmp/ocp_backups') }}"
