@@ -40,6 +40,6 @@
 #    - { role: install_packages, tags: ['install_packages'] }
 #    - { role: prepare_openshift_node, tags: ['prepare_node'] }
 
-- hosts: all:!bastion:!controller:!amos_glusterfs
+- hosts: all:!bastion:!controller:!postdeploy_glusterfs
   roles:
    - { role: configure_multitenant_docker, tags: ['setup_docker'] }
