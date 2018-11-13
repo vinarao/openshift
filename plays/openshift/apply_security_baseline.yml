@@ -25,7 +25,7 @@
         state: restarted
 
   roles:
-    - role: apply_rhel7_cp_ccp_baseline
+  #  - role: apply_rhel7_cp_ccp_baseline
 
     - role: apply_rhel7_cis_baseline
       vars:
