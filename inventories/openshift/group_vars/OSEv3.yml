@@ -18,6 +18,9 @@ containerized: "True"
 openshift_release: 3.9.30
 openshift_image_tag: v3.9.30
 
+#patch to restrict rhe stroage plugin to specified version. There is a bug in heketi3.9 so we have explicitly setup this as 3.10. It is wise to use glusterfs 3.4 instead of glusterfs3.3
+openshift_storage_glusterfs_heketi_version: v3.10
+
 oreg_url: registry.access.redhat.com/openshift3/ose-${component}:${version}
 openshift_examples_modify_imagestreams: true
 
