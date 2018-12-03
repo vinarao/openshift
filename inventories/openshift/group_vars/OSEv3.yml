@@ -1,5 +1,5 @@
 ---
-ansible_ssh_user: deploy-user
+ansible_ssh_user: ec2-user
 ansible_become: "yes"
 
 openshift_deployment_type: openshift-enterprise
@@ -11,6 +11,7 @@ openshift_disable_check: disk_availability,docker_image_availability,docker_stor
 #redhat_organization_id: mycompany
 #redhat_activationkey: mykey
 
+#Vinay Changed this
 containerized: "True"
 openshift_release: 3.9.30
 openshift_image_tag: v3.9.30
@@ -18,18 +19,19 @@ openshift_image_tag: v3.9.30
 oreg_url: registry.access.redhat.com/openshift3/ose-${component}:${version}
 openshift_examples_modify_imagestreams: true
 
-openshift_master_api_port: 443
-openshift_master_console_port: 443
+#Why 443 and not 8443 
+openshift_master_api_port: 8443
+openshift_master_console_port: 8443
 
 # disable installation of broker when the core openshift is installed
-ansible_service_broker_install: False
+#ansible_service_broker_install: False
 
 # enable installation of broker separately after core openshift is installed
-override_ansible_service_broker_install: True
-
+#override_ansible_service_broker_install: True
+#template_service_broker_selector: {"region":"infra"}
 # Proxy settings
-openshift_http_proxy: "http://proxy.example.com:8080"
-openshift_https_proxy: "http://proxy.example.com:8080"
+#openshift_http_proxy: "http://proxy.example.com:8080"
+#openshift_https_proxy: "http://proxy.example.com:8080"
 openshift_no_proxy: 'local,localhost,localdomain,svc,my.openshift.domain.com'
 
 # Identity configuration - IDM
@@ -83,15 +85,15 @@ openshift_master_cluster_public_hostname: admin.ocp-01.example.com
 #for use first infra node and do this: http://xip.io/ 
 
 # wildcard domain for app routes
-openshift_master_default_subdomain: apps.ocp-01.example.com
+#openshift_master_default_subdomain: apps.ocp-01.example.com
 
 #  Provide local certificate paths which will be deployed to masters
 # openshift_master_named_certificates: [{"certfile": "/root/openshift.crt", "keyfile": "/root/openshift.key", "cafile": "/root/ca-chain.pem"}]
-openshift_master_overwrite_named_certificates: "True"
+#openshift_master_overwrite_named_certificates: "True"
 # openshift_hosted_router_certificate: {"certfile": "/root/wildcard.crt", "keyfile": "/root/wildcard.key", 'cafile': '/root/ca-chain.pem' }
 
 # master certificate - change path below as required
-openshift_master_named_certificates: [{"certfile": "/home/ansible-user/cluster_setup/certificates/admin", "keyfile": "/home/ansible-user/cluster_setup/certificates/certificates/key"}]
+#openshift_master_named_certificates: [{"certfile": "/home/ansible-user/cluster_setup/certificates/admin", "keyfile": "/home/ansible-user/cluster_setup/certificates/certificates/key"}]
 
 #  Install the openshift examples
 openshift_install_examples: "True"
@@ -103,10 +105,12 @@ openshift_install_examples: "True"
 openshift_node_kubelet_args: {'image-gc-high-threshold': ['90'], 'image-gc-low-threshold': ['80']}
 openshift_router_selector: "region=infra"
 openshift_registry_selector: "region=infra"
-os_sdn_network_plugin_name: 'redhat/openshift-ovs-multitenant'
+# This need to be cni 
+os_sdn_network_plugin_name: 'cni'
 
 # custom sdn configuration - change to a different range as required
 # osm_cluster_network_cidr: 192.168.0.0/16
+openshift_enable_service_catalog: false
 
 # Logging
 openshift_logging_install_logging: False
@@ -135,6 +139,8 @@ openshift_metrics_hawkular_limits_memory: 2Gi
 openshift_metrics_heapster_limits_memory: 1Gi
 
 openshift_metrics_cassandra_nodeselector: {"region":"infra"}
+#openshift_service_catalog_nodeselector: {"region":"infra"}
+openshift_web_console_nodeselector: {'region':'infra'}
 openshift_metrics_hawkular_nodeselector: {"region":"infra"}
 openshift_metrics_heapster_nodeselector: {"region":"infra"}
 openshift_metrics_hawkular_agent_nodeselector: {"region":"infra"}

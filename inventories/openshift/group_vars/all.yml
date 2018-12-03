@@ -1,6 +1,6 @@
 ---
 oc: /usr/local/bin/oc
-ocp_uri: admin.openshift-01.example.com
+ocp_uri: admin.ocp-01.example.com
 
 # version of the openshift-ansible installer to use
 openshift_ansible_version: openshift-ansible-3.9.27-1

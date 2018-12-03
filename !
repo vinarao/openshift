@@ -1,0 +1,37 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+
+[masters]
+master openshift_hostname=ip-10-10-10-119.compute.internal openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
+
+[etcd]
+master openshift_hostname=ip-10-10-10-119.compute.internal
+
+[infra]
+infra openshift_hostname=ip-10-10-10-201.compute.internal openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
+
+[compute]
+compute openshift_hostname=ip-10-10-10-78.compute.internal openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az1'}"
+compute1 openshift_hostname=ip-10-10-10-49.compute.internal openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az1'}"
+
+[nodes:children]
+masters
+compute
+infra
+etcd
+
+[contrail:children]
+masters
+compute
+infra
+
+[control_node]
+node openshift_hostname=ip-10-10-10-15.compute.internal
+
+[bastion]
+node openshift_hostname=ip-10-10-10-15.compute.internal
+
+[contrail_master]
+infra openshift_hostname=ip-10-10-10-80.compute.internal

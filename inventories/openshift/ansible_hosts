@@ -1,39 +1,30 @@
 [OSEv3:children]
 masters
 nodes
-override_glusterfs
-glusterfs
 etcd
+#lb
 
 [masters]
-master0 ansible_host=host0003.example.com openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
-master1 ansible_host=host0002.example.com openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az2'}"
-master2 ansible_host=host0004.example.com openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az3'}"
+master openshift_hostname=ip-10-10-10-246.compute.internal openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
+#master1 openshift_hostname=ip-10-10-10-206.compute.internal openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
+#master2 openshift_hostname=ip-10-10-10-120.compute.internal openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
 
 [etcd]
-etcd0 ansible_host=host0003.example.com
-etcd1 ansible_host=host0002.example.com
-etcd2 ansible_host=host0004.example.com
+master openshift_hostname=ip-10-10-10-246.compute.internal openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
+#master1 openshift_hostname=ip-10-10-10-206.compute.internal openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
+#master2 openshift_hostname=ip-10-10-10-120.compute.internal openshift_node_labels="{'node': 'false', 'region': 'master', 'zone': 'az1'}"
 
 [infra]
-infra0 ansible_host=host0010.example.com openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
-infra1 ansible_host=host0011.example.com openshift_node_labels="{'region': 'infra', 'zone': 'az2'}"
-infra2 ansible_host=host0012.example.com openshift_node_labels="{'region': 'infra', 'zone': 'az3'}"
-infra3 ansible_host=host0005.example.com openshift_node_labels="{'region': 'infra', 'zone': 'az3'}"
+infra openshift_hostname=ip-10-10-10-235.compute.internal openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
+#infra1 openshift_hostname=ip-10-10-10-66.compute.internal openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
+#infra2 openshift_hostname=ip-10-10-10-124.compute.internal openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
 
 [compute]
-compute0 ansible_host=host0001.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az1'}"
-compute1 ansible_host=host0003.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az2'}"
-compute2 ansible_host=host0005.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az3'}"
-compute3 ansible_host=host0004.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az2'}"
-compute4 ansible_host=host0002.example.com openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az3'}"
+compute openshift_hostname=ip-10-10-10-215.compute.internal openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az1'}"
+compute1 openshift_hostname=ip-10-10-10-16.compute.internal openshift_node_labels="{'node': 'true', 'region': 'primary', 'zone': 'az1'}"
 
-
-# external GlusterFS Container Ready Storage (CRS) cluster nodes
-[override_glusterfs]
-storage0 ansible_host=host0009.example.com
-storage1 ansible_host=host0008.example.com
-storage2 ansible_host=host0007.example.com
+[storage]
+storage  openshift_hostname=ip-10-10-10-14.us-west-1.compute.internal 
 
 [nodes:children]
 masters
@@ -41,8 +32,21 @@ compute
 infra
 etcd
 
+[contrail:children]
+masters
+compute
+infra
+
 [control_node]
-controller1 ansible_host=host0002.example.com
+node openshift_hostname=ip-10-10-10-15.compute.internal
 
 [bastion]
-bastion1 ansible_host=host0002.example.com
+node openshift_hostname=ip-10-10-10-15.compute.internal
+
+[contrail_master]
+infra openshift_hostname=ip-10-10-10-235.compute.internal openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
+#infra1 openshift_hostname=ip-10-10-10-66.compute.internal openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
+#infra2 openshift_hostname=ip-10-10-10-124.compute.internal openshift_node_labels="{'region': 'infra', 'zone': 'az1'}"
+
+#[lb]
+#admin-internal.ocp-01.example.com openshift_hostname=ip-10-10-10-47.compute.internal

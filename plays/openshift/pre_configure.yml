@@ -1,10 +1,10 @@
 ---
 - hosts: nodes
   roles:
-    - { role: register_rhel, tags: ['register_rhel'] }
-    - { role: enable_yum_repos, tags: ['enable_yum_repos'] }
+#    - { role: register_rhel, tags: ['register_rhel'] }
+#    - { role: enable_yum_repos, tags: ['enable_yum_repos'] }
     - { role: install_packages, tags: ['install_packages'] }
     - { role: prepare_openshift_node, tags: ['prepare_openshift_node'] }
     - { role: configure_network_manager, tags: ['configure_network_manager'] }
-    - { role: configure_multitenant_docker, tags: ['configure_multitenant_docker'] }
+#    - { role: configure_multitenant_docker, tags: ['configure_multitenant_docker'] }
 ...
