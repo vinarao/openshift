@@ -9,7 +9,7 @@ contrail_registry_insecure: True
 contrail_registry: hub.juniper.net/contrail
 contrail_registry_username: JNPR-FieldUser3
 contrail_registry_password: E6Ti-V_GhU0yH#umLanQ
-kubernetes_api_server: 10.10.10.246
+#kubernetes_api_server: 10.10.10.246
 service_subnets: 172.30.0.0/16
 
 # openshift_node_open_ports: [

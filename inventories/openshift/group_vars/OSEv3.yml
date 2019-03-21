@@ -76,16 +76,16 @@ openshift_master_identity_providers:
 openshift_master_cluster_method: native
 
 # This is the internal facing DNS for masters
-openshift_master_cluster_hostname: admin-internal.ocp-01.example.com
+openshift_master_cluster_hostname: master.vvenkatapath.jnpr.com 
 
 # This is the external facing DNS for masters
-openshift_master_cluster_public_hostname: admin.ocp-01.example.com
+openshift_master_cluster_public_hostname: master.vvenkatapath.jnpr.com
 
 # This is the external facing DNS for apps
 #for use first infra node and do this: http://xip.io/ 
 
 # wildcard domain for app routes
-#openshift_master_default_subdomain: apps.ocp-01.example.com
+#openshift_master_default_subdomain: apps.vvenkatapath.jnpr.com 
 
 #  Provide local certificate paths which will be deployed to masters
 # openshift_master_named_certificates: [{"certfile": "/root/openshift.crt", "keyfile": "/root/openshift.key", "cafile": "/root/ca-chain.pem"}]
@@ -180,6 +180,8 @@ openshift_storage_glusterfs_block_storageclass: True
 openshift_storage_glusterfs_image: registry.access.redhat.com/rhgs3/rhgs-server-rhel7
 openshift_storage_glusterfs_block_image: registry.access.redhat.com/rhgs3/rhgs-gluster-block-prov-rhel7
 openshift_storage_glusterfs_heketi_image: registry.access.redhat.com/rhgs3/rhgs-volmanager-rhel7
+
+openshift_hosted_registry_selector: 'region=infra'
 
 # CONTAINERIZED GLUSTERFS FOR APPLICATIONS, REGISTRY, LOGGING, AND METRICS
 # see: https://docs.openshift.org/latest/install_config/persistent_storage/persistent_storage_glusterfs.html
